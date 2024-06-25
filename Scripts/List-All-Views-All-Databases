@@ -1,0 +1,31 @@
+if object_id('tempdb..#test') IS NOT NULL DROP TABLE #test
+
+CREATE TABLE #test (
+
+ ServerName sysname,
+
+ DatabaseName sysname,
+
+ Name sysname,
+
+ CreateDate datetime,
+
+ ModifyDate datetime);
+
+execute sp_MSforeachdb '
+
+insert into #test
+
+select @@servername, db_name = ''?'', name, create_date, modify_date
+
+ from [?].sys.views
+
+--UNION ALL
+
+--select @@servername, ''?'', name, create_date, modify_date
+
+-- FROM [?].sys.procedures'
+
+select 'USE [' + DatabaseName + ']; ' + 'GRANT SELECT ON ' + Name + ' TO [PCDF\G-MSSQL-ADMDados];' from #test where DatabaseName not in ('master','msdb')
+
+drop table #test
